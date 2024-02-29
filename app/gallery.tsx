@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Avatar from "boring-avatars";
 import {
   FaRegCircleXmark,
@@ -17,10 +17,17 @@ import { User } from "./types/user";
 export type GalleryProps = {
   users: User[];
 };
+
 const Gallery = ({ users }: GalleryProps) => {
   const [usersList, setUsersList] = useState(users);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sortField, setSortField] = useState<string>("name");
+  const [sortDirection, setSortDirection] = useState<string>("ascending");
+
+  useEffect(() => {
+    setUsersList(handleSort());
+  }, [sortField, sortDirection]);
 
   const handleModalOpen = (id: number) => {
     const user = usersList.find((item) => item.id === id) || null;
@@ -36,11 +43,39 @@ const Gallery = ({ users }: GalleryProps) => {
     setIsModalOpen(false);
   };
 
+  const sortFunction = (a: string, b: string, direction: string) => {
+    if (a < b) return direction === "ascending" ? -1 : 1;
+    if (a > b) return direction === "ascending" ? 1 : -1;
+    return 0;
+  };
+
+  const handleSort = () => {
+    let parsedUsers = JSON.parse(JSON.stringify(usersList));
+    return parsedUsers.sort((a: User, b: User) => {
+      if (sortField === "company") {
+        return sortFunction(
+          a?.company?.name?.toLowerCase(),
+          b?.company?.name?.toLowerCase(),
+          sortDirection
+        );
+      } else {
+        return sortFunction(
+          a[sortField]?.toLowerCase(),
+          b[sortField]?.toLowerCase(),
+          sortDirection
+        );
+      }
+    });
+  };
+
   return (
     <div className="user-gallery">
       <div className="heading">
         <h1 className="title">Users</h1>
-        <Controls />
+        <Controls
+          setSortField={setSortField}
+          setSortDirection={setSortDirection}
+        />
       </div>
       <div className="items">
         {usersList.map((user, index) => (

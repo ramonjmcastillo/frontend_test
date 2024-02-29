@@ -7,6 +7,7 @@ export type User = {
   phone: string;
   website: string;
   company: Company;
+  [key: string]: any;
 };
 
 export type Address = {
