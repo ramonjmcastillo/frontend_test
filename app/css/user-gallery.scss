@@ -10,6 +10,14 @@
     @media screen and (max-width: 480px) {
       grid-template-columns: 1fr;
     }
+
+    @media screen and (min-width: 701px) and (max-width: 1120px) {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    @media (min-width: 400px) and (max-height: 720px) {
+      grid-template-columns: repeat(2, minmax(50px, 1fr));
+    }
   }
 
   > .heading + .items {
