@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Avatar from "boring-avatars";
 import {
   FaRegCircleXmark,
@@ -16,24 +16,46 @@ import { User } from "./types/user";
 export type GalleryProps = {
   users: User[];
 };
-const Gallery = ({ users }: GalleryProps) => {
-  const [usersList, setUsersList] = useState(users);
+const Gallery = () => {
+  const [usersList, setUsersList] = useState([]);
+  const [loading, setIsLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleModalOpen = (id: number) => {
     const user = usersList.find((item) => item.id === id) || null;
 
-    if(user) {
+    if (user) {
       setSelectedUser(user);
       setIsModalOpen(true);
     }
   };
 
+  //I would normally use getServerSideProps for NextJS but this is a component that gets data and not a page so it doesnt apply to this scnario.
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch("https://jsonplaceholder.typicode.com/users");
+        const data = await res.json();
+        setUsersList(data);
+      } catch (err) {
+        console.log("An error has occurred when fetching the data", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
   const handleModalClose = () => {
     setSelectedUser(null);
     setIsModalOpen(false);
   };
+
+  if (loading) return <div>Loading Data.</div>;
 
   return (
     <div className="user-gallery">
@@ -118,5 +140,7 @@ const Gallery = ({ users }: GalleryProps) => {
     </div>
   );
 };
+
+export const getServerSideProps = async () => {};
 
 export default Gallery;
